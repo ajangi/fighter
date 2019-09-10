@@ -5,6 +5,7 @@ namespace Fighter\Router;
 
 
 use Fighter\Core\Request;
+use Fighter\Core\Response;
 
 class Router
 {
@@ -51,20 +52,92 @@ class Router
     }
     private function findRoute(){
         $method = $this->request->method;
-        $uri = $this->request->uri;
-        foreach (self::$routes as $route){
-            if ($route['method'] === $method && $route['uri'] === $uri){
-                return $route;
-                break;
+        $routes = $this->handleRouteMatch();
+        if (count($routes) === 0){
+            return Response::NotFound();
+        }else{
+            foreach ($routes as $route){
+                if ($route['method'] === $method){
+                    return $route;
+                    break;
+                }
+            }
+            return Response::MethodNotAllowed($this->request);
+        }
+    }
+
+    private function handleRouteMatch(){
+        $num = $this->request->uriParamsLength;
+        $Routes = array_filter(self::$routes,function ($uri) use($num){
+            $array = explode('/',$uri['uri']);
+            if (count($array) === $num)
+                return true;
+            return false;
+        });
+        $Route = array_filter($Routes,function ($uri){
+            $inputUri = $this->request->uri;
+            $inputArray = explode('/',$inputUri);
+            $array = explode('/',$uri['uri']);
+            foreach ($inputArray as $key=>$item){
+                if (strpos($array[$key],":") === false){
+                    if ($item !== $array[$key]){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+        return $Route;
+    }
+
+    private function getUriParams($matchUri){
+        $matchUri = explode('/',$matchUri['uri']);
+        $matchUri = array_filter($matchUri,function ($item){
+            if (strpos($item,":") === 0 ){
+                return true;
+            }
+            return false;
+        });
+        return $matchUri;
+    }
+
+    public function handle(Request $request){
+        $matchRoute =  $this->findRoute();
+        $uriParams = $this->getUriParams($matchRoute);
+        $controllerString = 'Fighter\\Controllers\\'.$matchRoute['controller'];
+        $handler = $matchRoute['action'];
+        if (count($uriParams) > 0){
+            $mainParams = [];
+            $inputUriParams = explode('/',$this->request->uri);
+            foreach ($uriParams as $key=>$param){
+                $val = $inputUriParams[$key];
+                $mainKey = substr(1,$param);
+                $mainParams[$mainKey] = $val;
+            }
+            if (class_exists($controllerString)){
+                $controller = new $controllerString($this->request);
+                if (method_exists($controller,$handler)){
+                    return call_user_func_array(array($controller, $handler), $mainParams);
+                }else{
+                    return new \Exception("ERROR FINDING Method!!");
+                }
+            }else{
+                return new \Exception("ERROR FINDING CONTROLLER!!");
+            }
+        }else{
+            if (class_exists($controllerString)){
+                $controller = new $controllerString($this->request);
+                if (method_exists($controller,$handler)){
+                    return $controller->$handler();
+                }else{
+                    return new \Exception("ERROR FINDING Method!!");
+                }
+            }else{
+                return new \Exception("ERROR FINDING CONTROLLER!!");
             }
         }
-        return null;
-    }
-    public function handle(Request $request){
-        $route = $this->findRoute();
-        var_dump($route);
-        return 0;
-        if (is_callable($action)){
+        //var_dump($matchRoute);
+        /*if (is_callable($action)){
             $exploded = func_get_args()[1];
             return call_user_func($action,$exploded);
         }else{
@@ -77,6 +150,6 @@ class Router
             }else{
                 return new \Exception("ERROR FINDING CONTROLLER!!");
             }
-        }
+        }*/
     }
 }

@@ -15,7 +15,7 @@ Router::group('/api/v1/user',[
     ],
     [
         'method'=>'GET',
-        'uri'=>'/{id}/',
+        'uri'=>'/:id/',
         'controller'=>'ApiController',
         'action' => 'getUserById'
     ]

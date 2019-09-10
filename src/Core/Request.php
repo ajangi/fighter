@@ -13,6 +13,7 @@ class Request
     public $post;
     public $method;
     public $uri;
+    public $uriParamsLength;
     public function __construct()
     {
         $this->server = $_SERVER;
@@ -22,6 +23,7 @@ class Request
         $this->get = $this->raw_get;
         $this->post = $this->raw_post;
         $this->uri = $this->getUri();
+        $this->uriParamsLength = $this->getUriParamsLength();
     }
 
     private function getRequestMethod(){
@@ -29,11 +31,21 @@ class Request
     }
 
     private function getUri(){
-        $uri = $this->server['REQUEST_URI'];
+        $uri = $this->getRawUri();
         if (substr($uri,-1) === "/"){
             return $uri;
         }else{
             return $uri."/";
         }
+    }
+    private function getRawUri(){
+        $uri = $this->server['REQUEST_URI'];
+        $uri = explode('?',$uri)[0];
+        return $uri;
+    }
+    private function getUriParamsLength(){
+        $uri = $this->getUri();
+        $params = explode('/',$uri);
+        return count($params);
     }
 }

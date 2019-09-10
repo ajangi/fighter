@@ -20,7 +20,7 @@ class App {
 
     public function handleRequest()
     {
-        echo $this->router->handle($this->request);
+        return $this->router->handle($this->request);
     }
     public function send()
     {
