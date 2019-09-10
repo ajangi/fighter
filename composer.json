@@ -1,0 +1,19 @@
+{
+    "name": "ajangi/fighter",
+    "authors": [
+        {
+            "name": "Alireza Jangi",
+            "email": "ajangi@hotmail.com"
+        }
+    ],
+    "require": {
+        "ext-json": "*",
+        "ext-http": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fighter\\":"src/"
+        },
+        "files": ["src/routes.php"]
+    }
+}
