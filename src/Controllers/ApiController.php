@@ -9,8 +9,8 @@ class ApiController extends Controller {
         var_dump($this->request->post);
         return "first test";
     }
-    public function getUserPostsByUserId($id){
-        echo $id;
+    public function getUserPostsByUserId($id,$postId){
+        echo $id . '<br>'. $postId;
         return '';
     }
 }

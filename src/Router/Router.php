@@ -111,7 +111,7 @@ class Router
             $inputUriParams = explode('/',$this->request->uri);
             foreach ($uriParams as $key=>$param){
                 $val = $inputUriParams[$key];
-                $mainKey = substr(1,$param);
+                $mainKey = ltrim($param, ':');
                 $mainParams[$mainKey] = $val;
             }
             if (class_exists($controllerString)){

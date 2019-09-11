@@ -15,6 +15,12 @@ Router::group('/api/v1/user',[
     ],
     [
         'method'=>'GET',
+        'uri'=>'/:id/posts/:postId/',
+        'controller'=>'ApiController',
+        'action' => 'getUserPostsByUserId'
+    ],
+    [
+        'method'=>'GET',
         'uri'=>'/:id/',
         'controller'=>'ApiController',
         'action' => 'getUserById'
